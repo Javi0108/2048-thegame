@@ -48,6 +48,7 @@ export default class Table {
     this.normalTexture = this.experience.resources.items.TableNormalTexture;
     this.displacementTexture =
       this.experience.resources.items.TableDisplacementTexture;
+    this.colorTexture = this.experience.resources.items.TableColorTexture;
     this.gradientTexture = this.experience.resources.items.GradientMapTexture;
     this.setGeometry();
     this.setGame();
@@ -60,6 +61,7 @@ export default class Table {
     };
     this.boxGeom = new THREE.BoxGeometry(4, 4, 0.4, 50, 40, 30);
     this.boxMat = new THREE.MeshStandardMaterial({
+      map: this.colorTexture,
       normalMap: this.normalTexture,
       color: 0xbbada0,
     });
@@ -120,21 +122,24 @@ export default class Table {
       );
     };
     this.extrude = new THREE.Mesh(this.boxGeom, this.boxMat);
+    this.extrude.rotation.y = Math.PI;
+    this.extrude.receiveShadow = true;
+    this.extrude.castShadow = true;
     this.plane = new THREE.Mesh(
-      new THREE.PlaneGeometry(3.75, 3.75),
+      new THREE.PlaneGeometry(3.8, 3.85),
       new THREE.MeshStandardMaterial({
+        map: this.colorTexture,
         color: 0xbbada0,
-        side: THREE.DoubleSide,
       })
     );
+    this.plane.rotation.y = Math.PI;
     this.plane.position.z = -0.201;
-    this.extrude.rotation.y = Math.PI;
     this.scene.add(this.extrude, this.plane);
   }
 
   setGame() {
-    document.querySelector('.game-over').style.display = 'none'
-    document.querySelector('.game-over').style.opacity = 0
+    document.querySelector(".game-over").style.display = "none";
+    document.querySelector(".game-over").style.opacity = 0;
     this.addRandomBox();
     this.addRandomBox();
   }
@@ -158,8 +163,8 @@ export default class Table {
 
     if (this.isGameOver()) {
       setTimeout(() => {
-        document.querySelector('.game-over').style.display = 'flex'
-        document.querySelector('.game-over').style.opacity = 1
+        document.querySelector(".game-over").style.display = "flex";
+        document.querySelector(".game-over").style.opacity = 1;
         //alert("Game Over");
       }, 300);
     }

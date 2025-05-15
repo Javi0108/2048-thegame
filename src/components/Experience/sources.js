@@ -1,5 +1,10 @@
 export default [
     {
+        name: "TableColorTexture",
+        type: "texture",
+        path: "/textures/table_color_texture.png"
+    },
+    {
         name: "TableNormalTexture",
         type: "texture",
         path: "/textures/table_normal_texture.png"

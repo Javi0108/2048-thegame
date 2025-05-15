@@ -104,6 +104,8 @@ export default class Box {
       );
     };
     this.cube = new THREE.Mesh(this.boxGeom, this.boxMat);
+    this.cube.castShadow = true;
+    this.cube.receiveShadow = true;
     this.cube.rotation.y = Math.PI;
     this.cube.position.set(this.positionX, this.positionY, 0.15);
 
@@ -138,6 +140,8 @@ export default class Box {
       this.cubeValueGeometry,
       this.cubeValueMaterial
     );
+    this.cubeValue.castShadow = true;
+    this.cubeValue.receiveShadow = true;
     this.cubeValue.position.set(
       this.positionX - this.textPaddingX,
       this.positionY - this.textPaddingY,
