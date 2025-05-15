@@ -1,24 +1,40 @@
-<div class="scoreboard">
-  <h1 class="title">2048</h1>
-  <div class="score-container">
-    <div class="newgame">
-      <button class="newgame-button">New Game</button>
-    </div>
-    <div class="points">
-      <span class="score-points">POINTS <span class="points-number">0</span></span>
-      <span class="best-points">BEST <span class="best-number">0</span></span>
+<section class="main-section">
+  <div class="scoreboard">
+    <h1 class="title">2048</h1>
+    <div class="score-container">
+      <div class="newgame">
+        <button class="newgame-button">New Game</button>
+      </div>
+      <div class="points">
+        <span class="score-points"
+          >POINTS <span class="points-number">0</span></span
+        >
+        <!-- <span class="best-points">BEST <span class="best-number">0</span></span> -->
+      </div>
     </div>
   </div>
+  <canvas id="container"></canvas>
+</section>
+<div class="game-over">
+  <span class="gameover-text">Game Over!</span>
+  <button class="gameover-button">New Game</button>
 </div>
-<canvas class="container"></canvas>
 
 <script>
   import Experience from "../components/Experience/Experience";
 
-  const experience = new Experience(document.querySelector(".container"));
+  const experience = new Experience(document.getElementById("container"));
 </script>
 
 <style>
+  .main-section {
+    height: 100vh;
+    background-color: #faf8ef;
+    display: flex;
+    flex-direction: row;
+    justify-content: start;
+  }
+
   .title {
     font-size: 80px;
     color: #776e65;
@@ -47,6 +63,7 @@
     display: block;
     text-align: center;
     float: right;
+    cursor: pointer;
   }
 
   .scoreboard {
@@ -64,7 +81,7 @@
   .points {
     display: flex;
     flex-direction: row;
-    gap: .5rem;
+    gap: 0.5rem;
   }
 
   .score-points {
@@ -72,7 +89,7 @@
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    gap: .25rem;
+    gap: 0.25rem;
     background-color: #bbada0;
     padding: 10px;
     border-radius: 3px;
@@ -85,12 +102,53 @@
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    gap: .25rem;
+    gap: 0.25rem;
     background-color: #bbada0;
     padding: 10px;
     border-radius: 3px;
     color: white;
     font-size: 14px;
     font-weight: 600;
+  }
+
+  .game-over {
+    position: absolute;
+    width: 500px;
+    height: 500px;
+    border-radius: 10px;
+    top: 23%;
+    left: 50%;
+    transform: translate(-50%);
+    backdrop-filter: blur(10px);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 1.5rem;
+    opacity: 0;
+    transition: opacity 0.5s;
+  }
+
+  .gameover-text {
+    font-size: xx-large;
+    font-weight: 600;
+    color: white;
+  }
+
+  .gameover-button {
+    background: #8f7a66;
+    border-radius: 3px;
+    border: 0px;
+    padding: 0 20px;
+    text-decoration: none;
+    color: #f9f6f2;
+    font-weight: bold;
+    font-size: 15px;
+    height: 40px;
+    line-height: 42px;
+    display: block;
+    text-align: center;
+    float: right;
+    cursor: pointer;
   }
 </style>

@@ -10,6 +10,11 @@ export default [
         path: "/textures/table_displacement_texture.png"
     },
     {
+        name: "GradientMapTexture",
+        type: "texture",
+        path: "/textures/gradientMap.png"
+    },
+    {
         name: "ClearSansFont",
         type: "font",
         path: "/fonts/ClearSans_Medium_Regular.json"

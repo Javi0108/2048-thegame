@@ -3,27 +3,49 @@ import * as THREE from "three";
 import gsap from "gsap";
 import { TextGeometry } from "three/examples/jsm/Addons.js";
 
+const lightThemeCcolor = [
+  "#EEE4DA",
+  "#EDE0C8",
+  "#F2B179",
+  "#F59563",
+  "#F67C5F",
+  "#F65E3B",
+  "#EDCF72",
+  "#EDCC61",
+  "#EDC850",
+  "#EDC53F",
+  "#EDC22E",
+  "#CDC1B4",
+];
+
 export default class Box {
   constructor(position, value = 2) {
     this.experience = new Experience();
     this.sizes = this.experience.sizes;
     this.time = this.experience.time;
+    this.animationDuration = 1000; // en milisegundos
+    this.animationStartTime = this.time.elapsed; // tiempo inicial 400ms
     this.scene = this.experience.scene;
     this.positionX = position.x;
     this.positionY = position.y;
     this.font = this.experience.resources.items.ClearSansFont;
     this.value = value;
     this.setGeometry();
-    //this.setListeners();
+  }
+
+  getColor() {
+    if (this.value === 2) return "#CDC1B4";
+    return lightThemeCcolor[Math.log2(this.value) - 1];
   }
 
   setGeometry() {
     var settings = {
       radius: { value: 0.3 },
     };
-    this.boxGeom = new THREE.BoxGeometry(0.75, 0.75, 0.3, 50, 40, 30);
+
+    this.boxGeom = new THREE.BoxGeometry(0.8, 0.8, 0.2, 50, 40, 30);
     this.boxMat = new THREE.MeshStandardMaterial({
-      color: "#EEE4DA",
+      color: new THREE.Color(this.getColor()),
     });
     this.boxMat.onBeforeCompile = (shader) => {
       shader.uniforms.boxSize = {
@@ -83,20 +105,59 @@ export default class Box {
     };
     this.cube = new THREE.Mesh(this.boxGeom, this.boxMat);
     this.cube.rotation.y = Math.PI;
-    this.cube.position.set(this.positionX, this.positionY, 0.15); //(-1.43, -1.49, 0.2);
+    this.cube.position.set(this.positionX, this.positionY, 0.15);
+
+    const paddingX = [0.12, 0.22, 0.3, 0.33];
+    const paddingY = [0.125, 0.1];
+    const sizes = [0.3, 0.25, 0.2];
+    if (this.value.toString().length == 1) {
+      this.fontSize = sizes[0];
+      this.textPaddingX = paddingX[0];
+      this.textPaddingY = paddingY[0];
+    } else if (this.value.toString().length == 2) {
+      this.fontSize = sizes[1];
+      this.textPaddingX = paddingX[1];
+      this.textPaddingY = paddingY[0];
+    } else if (this.value.toString().length == 3) {
+      this.fontSize = sizes[1];
+      this.textPaddingX = paddingX[2];
+      this.textPaddingY = paddingY[0];
+    } else if (this.value.toString().length == 4) {
+      this.fontSize = sizes[2];
+      this.textPaddingX = paddingX[3];
+      this.textPaddingY = paddingY[1];
+    }
 
     this.cubeValueGeometry = new TextGeometry(this.value.toString(), {
       font: this.font,
-      size: 0.35,
-      depth: 0.3,
-    })
-    this.cubeValueMaterial = new THREE.MeshBasicMaterial({ color: 0x000000 })
-    this.cubeValue = new THREE.Mesh(this.cubeValueGeometry, this.cubeValueMaterial)
-    this.cubeValue.position.set(this.positionX - 0.15, this.positionY - 0.15, 0.025)
+      size: this.fontSize,
+      depth: 0.275,
+    });
+    this.cubeValueMaterial = new THREE.MeshBasicMaterial({ color: 0x000000 });
+    this.cubeValue = new THREE.Mesh(
+      this.cubeValueGeometry,
+      this.cubeValueMaterial
+    );
+    this.cubeValue.position.set(
+      this.positionX - this.textPaddingX,
+      this.positionY - this.textPaddingY,
+      0
+    );
 
-    this.group = new THREE.Group()
-    this.group.add(this.cube, this.cubeValue)
+    this.group = new THREE.Group();
+    this.group.add(this.cube, this.cubeValue);
     this.scene.add(this.group);
+  }
+
+  updateLabel() {
+    this.group.remove(this.cube, this.cubeValue); // Quitar el texto viejo
+    this.setGeometry(); // Crear uno nuevo
+    this.cubeValue.position.set(
+      this.positionX - this.textPaddingX,
+      this.positionY - this.textPaddingY,
+      0
+    );
+    this.group.add(this.cubeValue); // Añadir el texto nuevo
   }
 
   moveTo(newX, newY) {
@@ -110,18 +171,24 @@ export default class Box {
     });
 
     gsap.to(this.cubeValue.position, {
-      x: newX - 0.15,
-      y: newY - 0.15,
+      x: newX - this.textPaddingX,
+      y: newY - this.textPaddingY,
       duration: 0.2,
       ease: "power2.out",
     });
   }
 
   remove() {
-    this.scene.remove(this.group);
+    if (this.group && this.group.parent) {
+      this.group.parent.remove(this.group);
+    }
   }
 
-  setListeners() {}
+  update() {
+    const elapsed = this.time.elapsed - this.animationStartTime;
+    const progress = Math.min(elapsed / this.animationDuration, 1);
 
-  update() {}
+    const scale = progress * 1;
+    this.cube.scale.set(scale, scale, scale);
+  }
 }

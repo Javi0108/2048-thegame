@@ -10,7 +10,6 @@ export default class Camera {
     this.canvas = this.experience.canvas;
     this.setInstance();
     this.setControls();
-    //this.setListeners();
   }
 
   setInstance() {
@@ -26,22 +25,9 @@ export default class Camera {
 
   setControls() {
     this.controls = new OrbitControls(this.instance, this.canvas);
-    this.controls.enableDamping = false;
-    //this.controls.enableZoom = false;
+    this.controls.enableDamping = true;
+    this.controls.enableZoom = false;
   }
-
-  setListeners() {
-    const mouse = new THREE.Vector2();
-    window.addEventListener("mousemove", (event) => {
-      mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
-      mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
-      this.instance.position.x = -mouse.x * 0.025;
-      this.instance.position.y = -mouse.y * 0.025;
-      this.instance.lookAt(0, 0, 0);
-    });
-  }
-
-  
 
   resize() {
     this.instance.aspect = this.sizes.width / this.sizes.height;

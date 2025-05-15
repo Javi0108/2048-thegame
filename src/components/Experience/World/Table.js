@@ -3,8 +3,9 @@ import Box from "./Box.js";
 import * as THREE from "three";
 import gsap from "gsap";
 
+let points = 0;
+
 const positions = [
-  // La Z siempre sera 0.2
   [
     new THREE.Vector2(-1.43, 1.37),
     new THREE.Vector2(-0.475, 1.37),
@@ -47,6 +48,7 @@ export default class Table {
     this.normalTexture = this.experience.resources.items.TableNormalTexture;
     this.displacementTexture =
       this.experience.resources.items.TableDisplacementTexture;
+    this.gradientTexture = this.experience.resources.items.GradientMapTexture;
     this.setGeometry();
     this.setGame();
     this.setListeners();
@@ -130,58 +132,11 @@ export default class Table {
     this.scene.add(this.extrude, this.plane);
   }
 
-  getRandom() {
-    const pool = [0, 1, 2, 3];
-    const result = [];
-
-    // Barajamos la lista para obtener valores únicos al principio
-    const shuffled = pool.sort(() => 0.5 - Math.random());
-
-    // Escogemos entre 2 y 4 valores únicos, según cuánta diversidad queramos
-    const uniqueCount = Math.floor(Math.random() * 2) + 2; // entre 2 y 3 valores únicos
-
-    // Agrega valores únicos al resultado
-    for (let i = 0; i < uniqueCount; i++) {
-      result.push(shuffled[i]);
-    }
-
-    // Rellena el resto (hasta 4) con valores aleatorios, con posibilidad de repetir
-    while (result.length < 4) {
-      const random = result[Math.floor(Math.random() * uniqueCount)];
-      result.push(random);
-    }
-
-    // Baraja el resultado para no dejar los valores únicos siempre al principio
-    return result.sort(() => 0.5 - Math.random());
-  }
-
   setGame() {
-    const [vec1X, vec1Y, vec2X, vecY] = this.getRandom();
-    const startPos1 = [vec1X, vec1Y];
-    const startPos2 = [vec2X, vecY];
-
-    for (let i = 0; i < positions.length; i++) {
-      if (i == startPos1[0]) {
-        for (let j = 1; j < positions.length + 1; j++) {
-          if (j == startPos1[1]) {
-            occupied[startPos1[0]][startPos1[1]] = new Box(
-              positions[startPos1[0]][startPos1[1]]
-            );
-          }
-        }
-      }
-    }
-    for (let i = 0; i < positions.length; i++) {
-      if (i == startPos2[0]) {
-        for (let j = 0; j < positions.length; j++) {
-          if (j == startPos2[1]) {
-            occupied[startPos2[0]][startPos2[1]] = new Box(
-              positions[startPos2[0]][startPos2[1]]
-            );
-          }
-        }
-      }
-    }
+    document.querySelector('.game-over').style.display = 'none'
+    document.querySelector('.game-over').style.opacity = 0
+    this.addRandomBox();
+    this.addRandomBox();
   }
 
   addRandomBox() {
@@ -200,46 +155,98 @@ export default class Table {
     const value = Math.random() > 0.1 ? 2 : 4;
     const box = new Box(positions[i][j], value);
     occupied[i][j] = box;
+
+    if (this.isGameOver()) {
+      setTimeout(() => {
+        document.querySelector('.game-over').style.display = 'flex'
+        document.querySelector('.game-over').style.opacity = 1
+        //alert("Game Over");
+      }, 300);
+    }
+  }
+
+  isGameOver() {
+    // Si hay algún espacio vacío, no es game over
+    for (let i = 0; i < 4; i++) {
+      for (let j = 0; j < 4; j++) {
+        if (occupied[i][j] === "") return false;
+
+        // Revisa vecinos adyacentes para ver si se puede fusionar
+        const current = occupied[i][j];
+        const neighbors = [
+          [i - 1, j],
+          [i + 1, j],
+          [i, j - 1],
+          [i, j + 1],
+        ];
+
+        for (let [ni, nj] of neighbors) {
+          if (ni >= 0 && ni < 4 && nj >= 0 && nj < 4) {
+            const neighbor = occupied[ni][nj];
+            if (neighbor && neighbor.value === current.value) {
+              return false; // Se puede fusionar
+            }
+          }
+        }
+      }
+    }
+
+    // Si no hay espacio ni fusiones posibles
+    return true;
   }
 
   move(direction) {
+    const vector = {
+      up: { x: 0, y: -1 },
+      down: { x: 0, y: 1 },
+      left: { x: -1, y: 0 },
+      right: { x: 1, y: 0 },
+    }[direction];
+
     let moved = false;
 
-    const directions = {
-      up: { x: 0, y: -1, start: 1, end: 4, step: 1 },
-      down: { x: 0, y: 1, start: 2, end: -1, step: -1 },
-      left: { x: -1, y: 0, start: 1, end: 4, step: 1 },
-      right: { x: 1, y: 0, start: 2, end: -1, step: -1 },
-    };
+    // Define el orden correcto de recorrido para cada dirección
+    const range = [0, 1, 2, 3];
+    const reverse = [3, 2, 1, 0];
+    const rows =
+      direction === "up" ? range : direction === "down" ? reverse : range;
+    const cols =
+      direction === "left" ? range : direction === "right" ? reverse : range;
 
-    const d = directions[direction];
+    // Limpiar marcas de fusión
+    for (let i = 0; i < 4; i++)
+      for (let j = 0; j < 4; j++)
+        if (occupied[i][j] !== "" && occupied[i][j].merged)
+          delete occupied[i][j].merged;
 
-    for (let outer = 0; outer < 4; outer++) {
-      for (let inner = d.start; inner !== d.end; inner += d.step) {
-        let row = d.x ? outer : inner;
-        let col = d.x ? inner : outer;
-
-        const box = occupied[row][col];
+    for (let i of rows) {
+      for (let j of cols) {
+        let row = i;
+        let col = j;
+        let box = occupied[row][col];
         if (box === "") continue;
 
         let newRow = row;
         let newCol = col;
 
-        for (let i = 1; i < 4; i++) {
-          const r = row + i * d.y;
-          const c = col + i * d.x;
+        while (true) {
+          const nextRow = newRow + vector.y;
+          const nextCol = newCol + vector.x;
 
-          if (r < 0 || r >= 4 || c < 0 || c >= 4) break;
+          if (nextRow < 0 || nextRow > 3 || nextCol < 0 || nextCol > 3) break;
 
-          if (occupied[r][c] === "") {
-            newRow = r;
-            newCol = c;
+          const nextBox = occupied[nextRow][nextCol];
+
+          if (nextBox === "") {
+            newRow = nextRow;
+            newCol = nextCol;
           } else if (
-            occupied[r][c].value === box.value &&
-            !occupied[r][c].merged
+            nextBox.value === box.value &&
+            !nextBox.merged &&
+            !box.merged
           ) {
-            newRow = r;
-            newCol = c;
+            newRow = nextRow;
+            newCol = nextCol;
             break;
           } else {
             break;
@@ -247,38 +254,42 @@ export default class Table {
         }
 
         if (newRow !== row || newCol !== col) {
-          moved = true;
+          const targetBox = occupied[newRow][newCol];
 
-          if (occupied[newRow][newCol] === "") {
+          if (targetBox === "") {
             occupied[newRow][newCol] = box;
             occupied[row][col] = "";
             box.moveTo(
               positions[newRow][newCol].x,
               positions[newRow][newCol].y
             );
-          } else {
-            const mergedBox = occupied[newRow][newCol];
-            mergedBox.value *= 2;
-            mergedBox.merged = true;
+          } else if (targetBox.value === box.value && !targetBox.merged) {
+            targetBox.value *= 2;
+            targetBox.updateLabel?.();
+            targetBox.merged = true;
+            points += targetBox.value;
 
             box.moveTo(
               positions[newRow][newCol].x,
               positions[newRow][newCol].y
             );
-            box.remove();
-            occupied[row][col] = "";
+            setTimeout(() => {
+              box.remove();
+              occupied[row][col] = "";
+              document.querySelector(".points-number").innerHTML = points;
+            }, 100);
           }
+
+          moved = true;
         }
       }
     }
 
-    // Eliminar las marcas de fusión
-    for (let i = 0; i < 4; i++)
-      for (let j = 0; j < 4; j++)
-        if (occupied[i][j] !== "" && occupied[i][j].merged)
-          delete occupied[i][j].merged;
-
-    if (moved) this.addRandomBox();
+    if (moved) {
+      setTimeout(() => {
+        this.addRandomBox();
+      }, 200);
+    }
   }
 
   setListeners() {
@@ -297,6 +308,40 @@ export default class Table {
           this.move("right");
           break;
       }
+    });
+
+    document.querySelector(".newgame-button").addEventListener("click", () => {
+      // Eliminar todos los Box del scene y del array ocupado
+      for (let i = 0; i < 4; i++) {
+        for (let j = 0; j < 4; j++) {
+          if (occupied[i][j] !== "") {
+            occupied[i][j].remove(); // Remueve de la escena
+            occupied[i][j] = "";
+          }
+        }
+      }
+
+      points = 0;
+      document.querySelector(".points-number").innerHTML = points;
+
+      this.setGame();
+    });
+
+    document.querySelector(".gameover-button").addEventListener("click", () => {
+      // Eliminar todos los Box del scene y del array ocupado
+      for (let i = 0; i < 4; i++) {
+        for (let j = 0; j < 4; j++) {
+          if (occupied[i][j] !== "") {
+            occupied[i][j].remove(); // Remueve de la escena
+            occupied[i][j] = "";
+          }
+        }
+      }
+
+      points = 0;
+      document.querySelector(".points-number").innerHTML = points;
+
+      this.setGame();
     });
   }
 
