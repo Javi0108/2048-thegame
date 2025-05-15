@@ -3,9 +3,20 @@
 	<head>
 		<meta charset="UTF-8" />
 		<meta name="viewport" content="width=device-width" />
-		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+		<link rel="icon" type="image/svg+xml" href="/favicon.ico" />
 		<meta name="generator" content={Astro.generator} />
-		<title>Astro Basics</title>
+		<title>2048 - The Game</title>
+
+		<link rel="preload" href="/fonts/ClearSans-Bold.ttf" as="font" type="font/ttf">
+		<link rel="preload" href="/fonts/ClearSans-BoldItalic.ttf" as="font" type="font/ttf">
+		<link rel="preload" href="/fonts/ClearSans-Italic.ttf" as="font" type="font/ttf">
+		<link rel="preload" href="/fonts/ClearSans-Light.ttf" as="font" type="font/ttf">
+		<link rel="preload" href="/fonts/ClearSans-Medium.ttf" as="font" type="font/ttf">
+		<link rel="preload" href="/fonts/ClearSans-MediumItalic.ttf" as="font" type="font/ttf">
+		<link rel="preload" href="/fonts/ClearSans-Regular.ttf" as="font" type="font/ttf">
+		<link rel="preload" href="/fonts/ClearSans-Thin.ttf" as="font" type="font/ttf">
+
+	</link>
 	</head>
 	<body>
 		<slot />
@@ -18,5 +29,7 @@
 		margin: 0;
 		width: 100%;
 		height: 100%;
+		background-color: #FAF8EF;
+		font-family: "Clear Sans", "Helvetica Neue", Arial, sans-serif;
 	}
 </style>

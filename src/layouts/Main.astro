@@ -1,0 +1,96 @@
+<div class="scoreboard">
+  <h1 class="title">2048</h1>
+  <div class="score-container">
+    <div class="newgame">
+      <button class="newgame-button">New Game</button>
+    </div>
+    <div class="points">
+      <span class="score-points">POINTS <span class="points-number">0</span></span>
+      <span class="best-points">BEST <span class="best-number">0</span></span>
+    </div>
+  </div>
+</div>
+<canvas class="container"></canvas>
+
+<script>
+  import Experience from "../components/Experience/Experience";
+
+  const experience = new Experience(document.querySelector(".container"));
+</script>
+
+<style>
+  .title {
+    font-size: 80px;
+    color: #776e65;
+    font-weight: bold;
+  }
+
+  .score-container {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: flex-end;
+    gap: 0.5rem;
+  }
+
+  .newgame-button {
+    background: #8f7a66;
+    border-radius: 3px;
+    border: 0px;
+    padding: 0 20px;
+    text-decoration: none;
+    color: #f9f6f2;
+    font-weight: bold;
+    font-size: 15px;
+    height: 40px;
+    line-height: 42px;
+    display: block;
+    text-align: center;
+    float: right;
+  }
+
+  .scoreboard {
+    position: absolute;
+    width: 30%;
+    left: 50%;
+    transform: translate(-50%);
+    margin-top: 0rem;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .points {
+    display: flex;
+    flex-direction: row;
+    gap: .5rem;
+  }
+
+  .score-points {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: .25rem;
+    background-color: #bbada0;
+    padding: 10px;
+    border-radius: 3px;
+    color: white;
+    font-size: 14px;
+    font-weight: 600;
+  }
+  .best-points {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: .25rem;
+    background-color: #bbada0;
+    padding: 10px;
+    border-radius: 3px;
+    color: white;
+    font-size: 14px;
+    font-weight: 600;
+  }
+</style>
